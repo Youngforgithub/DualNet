@@ -4,24 +4,24 @@ import tensorlayer as tl
 
 def StructNet(input_data):
     W_init = tf.truncated_normal_initializer(stddev=5e-2)
-    net=tl.layers.conv2d(input_data,n_filter=64,filter_size=(9,9), strides=(1,1),
+    net=tl.layers.Conv2d(input_data,n_filter=64,filter_size=(9,9), strides=(1,1),
                         act=tf.nn.relu,W_init=W_init,name="netS_conv0")
-    net=tl.layers.conv2d(net,n_filter=32,filter_size=(1,1),strides=(1,1),
+    net=tl.layers.Conv2d(net,n_filter=32,filter_size=(1,1),strides=(1,1),
                          act=tf.nn.relu,W_init=W_init,name="netS_conv1")
-    net=tl.layers.conv2d(net,n_filter=3,filter_size=(5,5),strides=(1,1),
+    net=tl.layers.Conv2d(net,n_filter=3,filter_size=(5,5),strides=(1,1),
                          act=tf.nn.relu,W_init=W_init,name="netS_conv2")
     return net
     
 def DetailNet(input_data):
      W_init = tf.truncated_normal_initializer(stddev=5e-2)
-     net=tl.layers.conv2d(input_data,n_filter=64,filter_size=(5,5), strides=(1,1),
+     net=tl.layers.Conv2d(input_data,n_filter=64,filter_size=(5,5), strides=(1,1),
                         act=tf.nn.relu,W_init=W_init,name="netD_conv0")
      for i in range(16):
-         net=tl.layers.conv2d(net,n_filter=64,filter_size=(3,3), strides=(1,1),
+         net=tl.layers.Conv2d(net,n_filter=64,filter_size=(3,3), strides=(1,1),
                               act=tf.nn.relu,W_init=W_init,name="netD_conv{}".format(i+1))
-     net=tl.layers.conv2d(net,n_filter=32,filter_size=(1,1), strides=(1,1),
+     net=tl.layers.Conv2d(net,n_filter=32,filter_size=(1,1), strides=(1,1),
                         act=tf.nn.relu,W_init=W_init,name="netD_convout1")
-     net=tl.layers.conv2d(net,n_filter=3,filter_size=(3,3), strides=(1,1),
+     net=tl.layers.Conv2d(net,n_filter=3,filter_size=(3,3), strides=(1,1),
                         act=tf.nn.relu,W_init=W_init,name="netD_convout")
      return net
  

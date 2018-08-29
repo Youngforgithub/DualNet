@@ -9,7 +9,17 @@ from data_proc import DataIterSR
 tl.layers.clear_layers_name()
 tf.reset_default_graph()
 
-datadir=r"_Datasets\SuperResolution\SR_training_datasets\T91"
+## charbonnier loss define
+def compute_charbonnier_loss(tensor1, tensor2, is_mean=True):
+    epsilon = 1e-6
+    if is_mean:
+        loss = tf.reduce_mean(tf.reduce_mean(tf.sqrt(tf.square(tf.subtract(tensor1,tensor2))+epsilon), [1, 2, 3]))
+    else:
+        loss = tf.reduce_mean(tf.reduce_sum(tf.sqrt(tf.square(tf.subtract(tensor1,tensor2))+epsilon), [1, 2, 3]))
+
+    return loss
+
+datadir=r"data\T91"
 img_list=[f for f in os.listdir(datadir) if f.find(".png")!=-1]
 
 scale_factor=4
@@ -32,15 +42,10 @@ net,endpoints=DualCNN(x)
 y_out=net.outputs
 y_struct=endpoints["compS"].outputs
 y_detail=endpoints["compD"].outputs
-cost=tl.cost.mean_squared_error(y,y_out, name="cost_all")
-cost=cost+0.001*tl.cost.mean_squared_error(ys,y_struct, name="cost_s")
-cost=cost+0.01*tl.cost.mean_squared_error(yd,y_detail, name="cost_d")
+cost=compute_charbonnier_loss(y,y_out,is_mean=True)
+cost=cost+0.001*compute_charbonnier_loss(ys,y_struct, is_mean=True)
+cost=cost+0.01*compute_charbonnier_loss(yd,y_detail, is_mean=True)
 
-l2_regular_loss = 0
-for w in tl.layers.get_variables_with_name('W_conv2d', train_only=True, printable=False):#[-3:]:
-    l2_regular_loss += tf.contrib.layers.l2_regularizer(1e-3)(w)
-#cost=cost+tf.contrib.layers.l2_regularizer(0.001)(net.all_params)
-cost=cost+l2_regular_loss
 
 global_step = tf.Variable(0)
 lr = tf.train.exponential_decay(lr0, global_step, 100, 0.96, staircase=True) 
