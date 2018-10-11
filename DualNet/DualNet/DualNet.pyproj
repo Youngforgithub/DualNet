@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>853ea2fa-0ab9-4f74-b051-d32ec7845e39</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>train_superres.py</StartupFile>
+    <StartupFile>data_proc.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -25,11 +25,33 @@
     <Compile Include="evaluate_metric.py" />
     <Compile Include="model.py" />
     <Compile Include="model2.py" />
+    <Compile Include="model3.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="model4.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="test.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="test_model.py" />
-    <Compile Include="train_superres.py" />
+    <Compile Include="train_Bifocus.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="train_superres_model3.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="train_superres_model4.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="train_superres_org.py" />
+    <Compile Include="train_superres_charbonnier.py" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="checkpoint\" />
+    <Folder Include="checkpoint\charbonnier\" />
+    <Folder Include="checkpoint\model3\" />
+    <Folder Include="checkpoint\org\" />
     <Folder Include="checkpoint\rtv\" />
     <Folder Include="data\" />
     <Folder Include="data\BSDS200\" />
@@ -48,7 +70,39 @@
     <Folder Include="test_result\sr\rtv\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="checkpoint\charbonnier\checkpoint" />
+    <Content Include="checkpoint\charbonnier\model_75000.ckpt.data-00000-of-00001" />
+    <Content Include="checkpoint\charbonnier\model_75000.ckpt.index" />
+    <Content Include="checkpoint\charbonnier\model_75000.ckpt.meta" />
+    <Content Include="checkpoint\charbonnier\model_80000.ckpt.data-00000-of-00001" />
+    <Content Include="checkpoint\charbonnier\model_80000.ckpt.index" />
+    <Content Include="checkpoint\charbonnier\model_80000.ckpt.meta" />
+    <Content Include="checkpoint\charbonnier\model_85000.ckpt.data-00000-of-00001" />
+    <Content Include="checkpoint\charbonnier\model_85000.ckpt.index" />
+    <Content Include="checkpoint\charbonnier\model_85000.ckpt.meta" />
+    <Content Include="checkpoint\charbonnier\model_90000.ckpt.data-00000-of-00001" />
+    <Content Include="checkpoint\charbonnier\model_90000.ckpt.index" />
+    <Content Include="checkpoint\charbonnier\model_90000.ckpt.meta" />
+    <Content Include="checkpoint\charbonnier\model_95000.ckpt.data-00000-of-00001" />
+    <Content Include="checkpoint\charbonnier\model_95000.ckpt.index" />
+    <Content Include="checkpoint\charbonnier\model_95000.ckpt.meta" />
     <Content Include="checkpoint\checkpoint" />
+    <Content Include="checkpoint\model3\checkpoint" />
+    <Content Include="checkpoint\model3\model_75000.ckpt.data-00000-of-00001" />
+    <Content Include="checkpoint\model3\model_75000.ckpt.index" />
+    <Content Include="checkpoint\model3\model_75000.ckpt.meta" />
+    <Content Include="checkpoint\model3\model_80000.ckpt.data-00000-of-00001" />
+    <Content Include="checkpoint\model3\model_80000.ckpt.index" />
+    <Content Include="checkpoint\model3\model_80000.ckpt.meta" />
+    <Content Include="checkpoint\model3\model_85000.ckpt.data-00000-of-00001" />
+    <Content Include="checkpoint\model3\model_85000.ckpt.index" />
+    <Content Include="checkpoint\model3\model_85000.ckpt.meta" />
+    <Content Include="checkpoint\model3\model_90000.ckpt.data-00000-of-00001" />
+    <Content Include="checkpoint\model3\model_90000.ckpt.index" />
+    <Content Include="checkpoint\model3\model_90000.ckpt.meta" />
+    <Content Include="checkpoint\model3\model_95000.ckpt.data-00000-of-00001" />
+    <Content Include="checkpoint\model3\model_95000.ckpt.index" />
+    <Content Include="checkpoint\model3\model_95000.ckpt.meta" />
     <Content Include="checkpoint\model_15000.ckpt.data-00000-of-00001" />
     <Content Include="checkpoint\model_15000.ckpt.index" />
     <Content Include="checkpoint\model_15000.ckpt.meta" />
@@ -67,6 +121,22 @@
     <Content Include="checkpoint\model_95000.ckpt.data-00000-of-00001" />
     <Content Include="checkpoint\model_95000.ckpt.index" />
     <Content Include="checkpoint\model_95000.ckpt.meta" />
+    <Content Include="checkpoint\org\checkpoint" />
+    <Content Include="checkpoint\org\model_75000.ckpt.data-00000-of-00001" />
+    <Content Include="checkpoint\org\model_75000.ckpt.index" />
+    <Content Include="checkpoint\org\model_75000.ckpt.meta" />
+    <Content Include="checkpoint\org\model_80000.ckpt.data-00000-of-00001" />
+    <Content Include="checkpoint\org\model_80000.ckpt.index" />
+    <Content Include="checkpoint\org\model_80000.ckpt.meta" />
+    <Content Include="checkpoint\org\model_85000.ckpt.data-00000-of-00001" />
+    <Content Include="checkpoint\org\model_85000.ckpt.index" />
+    <Content Include="checkpoint\org\model_85000.ckpt.meta" />
+    <Content Include="checkpoint\org\model_90000.ckpt.data-00000-of-00001" />
+    <Content Include="checkpoint\org\model_90000.ckpt.index" />
+    <Content Include="checkpoint\org\model_90000.ckpt.meta" />
+    <Content Include="checkpoint\org\model_95000.ckpt.data-00000-of-00001" />
+    <Content Include="checkpoint\org\model_95000.ckpt.index" />
+    <Content Include="checkpoint\org\model_95000.ckpt.meta" />
     <Content Include="checkpoint\README.md" />
     <Content Include="checkpoint\rtv\model_2000.ckpt.data-00000-of-00001" />
     <Content Include="checkpoint\rtv\model_2000.ckpt.index" />

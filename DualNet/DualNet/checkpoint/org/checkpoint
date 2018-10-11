@@ -1,0 +1,6 @@
+model_checkpoint_path: "/home/a/public/yyf/DualNet/DualNet/checkpoint/org/model_95000.ckpt"
+all_model_checkpoint_paths: "/home/a/public/yyf/DualNet/DualNet/checkpoint/org/model_75000.ckpt"
+all_model_checkpoint_paths: "/home/a/public/yyf/DualNet/DualNet/checkpoint/org/model_80000.ckpt"
+all_model_checkpoint_paths: "/home/a/public/yyf/DualNet/DualNet/checkpoint/org/model_85000.ckpt"
+all_model_checkpoint_paths: "/home/a/public/yyf/DualNet/DualNet/checkpoint/org/model_90000.ckpt"
+all_model_checkpoint_paths: "/home/a/public/yyf/DualNet/DualNet/checkpoint/org/model_95000.ckpt"

@@ -5,7 +5,7 @@ import cv2
 import tensorflow as tf
 import tensorlayer as tl
 import time
-from model import DualCNN
+from model3 import DualCNN
 from data_proc import DataIterSR
 
 from evaluate_metric import sr_metric
@@ -44,11 +44,11 @@ def test_SR():
             cv2.imwrite(os.path.join(res_dir, f+"_imgsr3.png"),img_out)
 
 def test_SR_DataSet():
-    datadir=r"data\BSDS200"
+    datadir=r"data\T91"
     img_list=[f for f in os.listdir(datadir) if f.find(".png")!=-1]
 
-    check_point_dir=r"checkpoint"
-    res_dir="test_result\sr\BSDS200"
+    check_point_dir=r"checkpoint\model3"
+    res_dir="test_result\moedel3\sr\T91"
     if not os.path.exists(res_dir):
         os.makedirs(res_dir)
 
@@ -59,6 +59,7 @@ def test_SR_DataSet():
     batch_size=10
     test_img_size=41
     scale_factor=4
+    pitch=30
 
     saver=tf.train.Saver()
     data_iter=DataIterSR(datadir, img_list, batch_size, test_img_size, scale_factor, True)
@@ -71,6 +72,9 @@ def test_SR_DataSet():
         epoch_cnt=0
         for f in img_list:
             img=cv2.imread(os.path.join(datadir, f), cv2.IMREAD_COLOR)
+            crop_img=img[80:80+pitch,80:80+pitch,:]
+            cv2.imwrite(os.path.join(res_dir, f+"_imgorg.png"),img)
+            cv2.imwrite(os.path.join(res_dir, f+"_imgorg_pt.png"),crop_img)
             [nrow, ncol, nchl]=img.shape
             img_blur=cv2.GaussianBlur(img,(3,3),1.2)
             img_ds=cv2.resize(img_blur, (ncol//scale_factor, nrow//scale_factor),
@@ -78,9 +82,9 @@ def test_SR_DataSet():
             img_lr=cv2.resize(img_ds, (ncol, nrow), interpolation=cv2.INTER_CUBIC)
             img_in=(img_lr.astype(npy.float32))/255.0
             img_in=img_in[npy.newaxis,:,:,:].astype(npy.float32)
-            start = time.clock()
+            start = time.time()
             y_pred=sess.run(y_out, feed_dict={x:img_in})
-            end = time.clock()
+            end = time.time()
             img=(img.astype(npy.float32))/255.0
             img=img[npy.newaxis,:,:,:].astype(npy.float32)
             mse, psnr=sr_metric(img,y_pred)
@@ -91,8 +95,12 @@ def test_SR_DataSet():
             print("pic_loical,time:{}, mse:{}, psnr:{}".format(end-start,mse, psnr))
             img_out=npy.maximum(0, npy.minimum(1,y_pred[0,:,:,:]))*255
             img_out=img_out.astype(npy.uint8)
+            crop_imglr=img_lr[80:80+pitch,80:80+pitch,:]
+            crop_imgsr=img_out[80:80+pitch,80:80+pitch,:]
             cv2.imwrite(os.path.join(res_dir, f+"_imglr.png"),img_lr)
-            cv2.imwrite(os.path.join(res_dir, f+"_imgsr3.png"),img_out)
+            cv2.imwrite(os.path.join(res_dir, f+"_imglr_pt.png"),crop_imglr)
+            cv2.imwrite(os.path.join(res_dir, f+"_imgsr.png"),img_out)
+            cv2.imwrite(os.path.join(res_dir, f+"_imgsr_pt.png"),crop_imgsr)
     print("time:{}, mse:{}, psnr:{}".format(mean_time/epoch_cnt, mean_mse/epoch_cnt, mean_psnr/epoch_cnt))
 
         

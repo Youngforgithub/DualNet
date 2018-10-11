@@ -75,6 +75,116 @@ class DataIterSR(object):
 
         return (sub_img_hr.astype(npy.float32),sub_img_lr.astype(npy.float32),
                 sub_img_struct.astype(npy.float32),sub_img_detail.astype(npy.float32))
+    def fetch_next2(self):
+        if self._is_shuffle and npy.mod(self._cur_idx,self._num_img)==0:
+            self._cur_idx=0
+            random.shuffle(self._img_list)  
+        crop_size=self._crop_size
+        img_path=os.path.join(self._datadir,self._img_list[self._cur_idx])
+        img=cv2.imread(img_path, cv2.IMREAD_COLOR)
+        img=cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
+        [nrow, ncol, nchl]=img.shape
+        self._iter_cnt += 1
+        self._cur_idx += 1
+        if nrow < crop_size or ncol < crop_size:
+            raise ValueError("Crop size is larger than image size")
+        img_blur=cv2.GaussianBlur(img,(3,3),1.2)
+        gray=cv2.cvtColor(img_blur,cv2.COLOR_RGB2GRAY)
+        xgrad=cv2.Sobel(gray,cv2.CV_16SC1,1,0)
+        ygrad=cv2.Sobel(gray,cv2.CV_16SC1,0,1)
+        img_detail=cv2.Canny(xgrad,ygrad,50,150)
+        img_detail=cv2.bitwise_and(img,img,mask=img_detail)
+        #img_struct=cv2.GaussianBlur(img_blur,(3,3),1.5)
+        img_ds=cv2.resize(img_blur, (ncol//self._scale_fator, nrow//self._scale_fator),
+                          interpolation=cv2.INTER_CUBIC)
+        img_lr=cv2.resize(img_ds, (ncol, nrow), interpolation=cv2.INTER_CUBIC)
+        img=img.astype(npy.float32)
+        img_lr=img_lr.astype(npy.float32)
+        img_struct=img-img_detail
+        img_struct=img_struct.astype(npy.float32)
+        
+        sub_img_hr=npy.zeros((self._crop_num, crop_size, crop_size, 3))
+        sub_img_lr=npy.zeros((self._crop_num, crop_size, crop_size, 3))
+        sub_img_struct=npy.zeros((self._crop_num, crop_size, crop_size, 3))
+        sub_img_detail=npy.zeros((self._crop_num, crop_size, crop_size, 3))
+        for i in range(self._crop_num):
+            nrow_start=npy.random.randint(0,nrow-crop_size)
+            ncol_start=npy.random.randint(0,ncol-crop_size)
+            img_crop=img_lr[nrow_start:nrow_start+crop_size,
+                            ncol_start:ncol_start+crop_size,:]              
+            img_crop=img_crop/255.0       
+            sub_img_lr[i,:,:,:]=img_crop
+            
+            img_crop=img[nrow_start:nrow_start+crop_size,
+                            ncol_start:ncol_start+crop_size,:]
+            img_crop=img_crop/255.0              
+            sub_img_hr[i,:,:,:]=img_crop
+
+            img_crop=img_struct[nrow_start:nrow_start+crop_size,
+                            ncol_start:ncol_start+crop_size,:]
+            img_crop=img_crop/255.0             
+            sub_img_struct[i,:,:,:]=img_crop
+
+            img_crop=img_detail[nrow_start:nrow_start+crop_size,
+                            ncol_start:ncol_start+crop_size,:]
+            img_crop=img_crop/255.0                   
+            sub_img_detail[i,:,:,:]=img_crop
+        #plt.figure()
+        #plt.imshow(img)
+        #plt.figure()
+        #plt.show(sub_img_lr.astype(npy.float32)[0,:,:,:])
+        #plt.show()
+        return (sub_img_hr.astype(npy.float32),sub_img_lr.astype(npy.float32),
+                sub_img_struct.astype(npy.float32),sub_img_detail.astype(npy.float32))
+
+    def creat(self):
+        if self._is_shuffle and npy.mod(self._cur_idx,self._num_img)==0:
+            self._cur_idx=0
+            random.shuffle(self._img_list)  
+        crop_size=self._crop_size
+        img_path=os.path.join(self._datadir,self._img_list[self._cur_idx])
+        img=cv2.imread(img_path, cv2.IMREAD_COLOR)
+        img=cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
+        [nrow, ncol, nchl]=img.shape
+        img_ds=cv2.resize(img, (ncol//self._scale_fator, nrow//self._scale_fator),
+                          interpolation=cv2.INTER_CUBIC)
+     
+        img_lr=cv2.resize(img_ds, (ncol, nrow), interpolation=cv2.INTER_CUBIC)
+        img_lr=img_lr/255
+        img_lr=img_lr.astype(npy.float32)
+
+        pixel_size=crop_size
+        crop_size=int(crop_size/2)
+        min_size=int(crop_size/2)
+        max_size=int(crop_size*3/2)
+        
+
+        img_hr=npy.zeros((self._crop_num,pixel_size,pixel_size,3))
+        img_lw=npy.zeros((self._crop_num,pixel_size,pixel_size,3))
+        img_crop_lr=npy.zeros((self._crop_num,pixel_size,pixel_size,3))
+        img_crop=npy.zeros((self._crop_num, pixel_size, pixel_size,3))
+        img_rs=npy.zeros((self._crop_num, pixel_size, pixel_size, 3))
+        for i in range(self._crop_num):
+            nrow_start=npy.random.randint(0,nrow-pixel_size)
+            ncol_start=npy.random.randint(0,ncol-pixel_size)
+            img_hr[i,:,:,:]=img[nrow_start:nrow_start+pixel_size,ncol_start:ncol_start+pixel_size,:]/255
+            img_crop[i,min_size:max_size,
+					   min_size:max_size,:]=img[nrow_start+min_size:nrow_start+max_size,
+												ncol_start+min_size:ncol_start+max_size,:]
+            img_crop_lr[i,min_size:max_size,
+					   min_size:max_size,:]=img_lr[nrow_start+min_size:nrow_start+max_size,
+												   ncol_start+min_size:ncol_start+max_size,:]
+            #sub_img_lr[i,:,:,:]=img_crop
+            #img_crop=img[nrow_start:nrow_start+crop_size,
+            #                ncol_start:ncol_start+crop_size,:]
+            img_crop[i,:,:,:]=img_crop[i,:,:,:]/255  
+            img_lw[i,:,:,:]=img_lr[nrow_start:nrow_start+pixel_size,ncol_start:ncol_start+pixel_size,:]
+            img_rs[i,:,:,:]=img_lw[i,:,:,:]-img_crop_lr[i,:,:,:]+img_crop[i,:,:,:]
+
+
+        return (img_hr.astype(npy.float32),img_lw.astype(npy.float32),
+				img_rs.astype(npy.float32),img_crop.astype(npy.float32))
+
 
 class DataIterEPF(object):
     def __init__(self, datadir,img_list, crop_num, crop_size, is_shuffle):
@@ -134,24 +244,67 @@ class DataIterEPF(object):
         return (sub_img1.astype(npy.float32),sub_img2.astype(npy.float32))    
  
 def test_SRDataIter():
-    datadir=r"_Datasets\SuperResolution\SR_training_datasets\T91"
+    datadir=r"data\T91"
     img_list=[f for f in os.listdir(datadir) if f.find(".png")!=-1]
     crop_num=5
     crop_size=64
     scale_factor=3
     data_iter=DataIterSR(datadir, img_list, crop_num, crop_size, scale_factor, True)
+    res_dir='./test_result/outsave'
+    if not os.path.exists(res_dir):
+        os.makedirs(res_dir)
     try:
-        img_hr, img_lr, img_struct, img_detail=data_iter.fetch_next()
-        plt.figure()
-        plt.subplot(2,2,1)
-        plt.imshow(img_hr[0, :,:,:])
-        plt.subplot(2,2,2)
+        img_hr, img_lr, img_rs,img_crop=data_iter.creat()
+        plt.subplot(2,6,1)
+        plt.imshow(img_hr[0,:,:,:])
+        plt.title('origin image')
+        plt.axis('off')
+        plt.subplot(2,6,2)
         plt.imshow(img_lr[0, :,:,:])
-        plt.subplot(2,2,3)
-        plt.imshow(img_struct[0, :,:,:])
-        plt.subplot(2,2,4)
-        plt.imshow(img_detail[0, :,:,:])
-        mse, psnr=sr_metric(img_hr, img_lr)
+        plt.title('low level image')
+        plt.axis('off')
+        plt.subplot(2,6,3)
+        plt.imshow(img_rs[0,:,:,:])
+        plt.title('reconstruct image 0')
+        plt.axis('off')
+        plt.subplot(2,6,4)
+        plt.imshow(img_crop[0,:,:,:])
+        plt.title('crop image 0')
+        plt.axis('off')
+        plt.subplot(2,6,5)
+        plt.imshow(img_rs[1,:,:,:])
+        plt.title('reconstruct image 1')
+        plt.axis('off')
+        plt.subplot(2,6,6)
+        plt.imshow(img_crop[1,:,:,:])
+        plt.title('crop image 1')
+        plt.axis('off')
+        plt.subplot(2,6,7)
+        plt.imshow(img_rs[2,:,:,:])
+        plt.title('reconstruct image 2')
+        plt.axis('off')
+        plt.subplot(2,6,8)
+        plt.imshow(img_crop[2,:,:,:])
+        plt.title('crop image 2')
+        plt.axis('off')
+        plt.subplot(2,6,9)
+        plt.imshow(img_rs[3,:,:,:])
+        plt.title('reconstruct image 3')
+        plt.axis('off')
+        plt.subplot(2,6,10)
+        plt.imshow(img_crop[3,:,:,:])
+        plt.title('crop image 3')
+        plt.axis('off')
+        plt.subplot(2,6,11)
+        plt.imshow(img_rs[4,:,:,:])
+        plt.title('reconstruct image 4')
+        plt.axis('off')
+        plt.subplot(2,6,12)
+        plt.imshow(img_crop[4,:,:,:])
+        plt.title('crop image 4')
+        plt.axis('off')
+        plt.show()
+        mse, psnr=sr_metric(img_hr, img_rs)
         print("mse={}, psnr={}".format(mse, psnr))
     except ValueError:
         print("data_iter get no data")
@@ -178,6 +331,6 @@ def test_DataIterEPF():
         print("data_iter get no data")
 
 if __name__=="__main__":
-#    test_SRDataIter()
-    test_DataIterEPF()
+    test_SRDataIter()
+#    test_DataIterEPF()
               
