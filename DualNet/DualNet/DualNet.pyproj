@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>853ea2fa-0ab9-4f74-b051-d32ec7845e39</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>data_proc.py</StartupFile>
+    <StartupFile>train_Bifocus.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -21,6 +21,9 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Bifocus_model.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="data_proc.py" />
     <Compile Include="evaluate_metric.py" />
     <Compile Include="model.py" />

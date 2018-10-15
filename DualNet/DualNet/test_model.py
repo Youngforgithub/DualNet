@@ -5,7 +5,7 @@ import cv2
 import tensorflow as tf
 import tensorlayer as tl
 import time
-from model3 import DualCNN
+from model4 import DualCNN
 from data_proc import DataIterSR
 
 from evaluate_metric import sr_metric

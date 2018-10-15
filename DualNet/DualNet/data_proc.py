@@ -4,7 +4,7 @@ import random
 import tensorflow as tf
 import numpy as npy
 from matplotlib import pyplot as plt
-from evaluate_metric import sr_metric
+from evaluate_metric import sr_metric,sr_single
   
 class DataIterSR(object):
     def __init__(self, datadir,img_list, crop_num, crop_size, scale_factor, is_shuffle):
@@ -154,7 +154,7 @@ class DataIterSR(object):
         img_lr=img_lr.astype(npy.float32)
 
         pixel_size=crop_size
-        crop_size=int(crop_size/2)
+        crop_size=int(crop_size/3)
         min_size=int(crop_size/2)
         max_size=int(crop_size*3/2)
         
@@ -164,12 +164,15 @@ class DataIterSR(object):
         img_crop_lr=npy.zeros((self._crop_num,pixel_size,pixel_size,3))
         img_crop=npy.zeros((self._crop_num, pixel_size, pixel_size,3))
         img_rs=npy.zeros((self._crop_num, pixel_size, pixel_size, 3))
-        for i in range(self._crop_num):
+        sub_imgCrop=npy.zeros((self._crop_num, crop_size, crop_size, 3))
+        for i in range(1):
             nrow_start=npy.random.randint(0,nrow-pixel_size)
             ncol_start=npy.random.randint(0,ncol-pixel_size)
             img_hr[i,:,:,:]=img[nrow_start:nrow_start+pixel_size,ncol_start:ncol_start+pixel_size,:]/255
             img_crop[i,min_size:max_size,
 					   min_size:max_size,:]=img[nrow_start+min_size:nrow_start+max_size,
+												ncol_start+min_size:ncol_start+max_size,:]
+            sub_imgCrop[i,:,:,:]=img[nrow_start+min_size:nrow_start+max_size,
 												ncol_start+min_size:ncol_start+max_size,:]
             img_crop_lr[i,min_size:max_size,
 					   min_size:max_size,:]=img_lr[nrow_start+min_size:nrow_start+max_size,
@@ -183,7 +186,7 @@ class DataIterSR(object):
 
 
         return (img_hr.astype(npy.float32),img_lw.astype(npy.float32),
-				img_rs.astype(npy.float32),img_crop.astype(npy.float32))
+				img_rs.astype(npy.float32),(sub_imgCrop/255).astype(npy.float32))
 
 
 class DataIterEPF(object):
@@ -247,7 +250,7 @@ def test_SRDataIter():
     datadir=r"data\T91"
     img_list=[f for f in os.listdir(datadir) if f.find(".png")!=-1]
     crop_num=5
-    crop_size=64
+    crop_size=100
     scale_factor=3
     data_iter=DataIterSR(datadir, img_list, crop_num, crop_size, scale_factor, True)
     res_dir='./test_result/outsave'
@@ -255,62 +258,30 @@ def test_SRDataIter():
         os.makedirs(res_dir)
     try:
         img_hr, img_lr, img_rs,img_crop=data_iter.creat()
-        plt.subplot(2,6,1)
-        plt.imshow(img_hr[0,:,:,:])
+        plt.subplot(2,2,1)
+        plt.imshow(img_hr[:,:,:])
         plt.title('origin image')
         plt.axis('off')
-        plt.subplot(2,6,2)
-        plt.imshow(img_lr[0, :,:,:])
+        plt.subplot(2,2,2)
+        plt.imshow(img_lr[:,:,:])
         plt.title('low level image')
         plt.axis('off')
-        plt.subplot(2,6,3)
-        plt.imshow(img_rs[0,:,:,:])
+        plt.subplot(2,2,3)
+        plt.imshow(img_rs[:,:,:])
         plt.title('reconstruct image 0')
         plt.axis('off')
-        plt.subplot(2,6,4)
-        plt.imshow(img_crop[0,:,:,:])
+        plt.subplot(2,2,4)
+        plt.imshow(img_crop[:,:,:])
         plt.title('crop image 0')
         plt.axis('off')
-        plt.subplot(2,6,5)
-        plt.imshow(img_rs[1,:,:,:])
-        plt.title('reconstruct image 1')
-        plt.axis('off')
-        plt.subplot(2,6,6)
-        plt.imshow(img_crop[1,:,:,:])
-        plt.title('crop image 1')
-        plt.axis('off')
-        plt.subplot(2,6,7)
-        plt.imshow(img_rs[2,:,:,:])
-        plt.title('reconstruct image 2')
-        plt.axis('off')
-        plt.subplot(2,6,8)
-        plt.imshow(img_crop[2,:,:,:])
-        plt.title('crop image 2')
-        plt.axis('off')
-        plt.subplot(2,6,9)
-        plt.imshow(img_rs[3,:,:,:])
-        plt.title('reconstruct image 3')
-        plt.axis('off')
-        plt.subplot(2,6,10)
-        plt.imshow(img_crop[3,:,:,:])
-        plt.title('crop image 3')
-        plt.axis('off')
-        plt.subplot(2,6,11)
-        plt.imshow(img_rs[4,:,:,:])
-        plt.title('reconstruct image 4')
-        plt.axis('off')
-        plt.subplot(2,6,12)
-        plt.imshow(img_crop[4,:,:,:])
-        plt.title('crop image 4')
-        plt.axis('off')
         plt.show()
-        mse, psnr=sr_metric(img_hr, img_rs)
+        mse, psnr=sr_single(img_hr, img_rs)
         print("mse={}, psnr={}".format(mse, psnr))
     except ValueError:
         print("data_iter get no data")
         
 def test_DataIterEPF():
-    datadir=r"_Datasets\DeRaining\train\RainTrainL"
+    datadir=r"data\T91"
     img_list1=[f for f in os.listdir(datadir) if f.find(".png")!=-1 and f.find("norain")!=-1]
     img_list2=[f for f in os.listdir(datadir) if f.find(".png")!=-1 
                and f.find("rain")!=-1 and f.find("norain")==-1]
@@ -332,5 +303,5 @@ def test_DataIterEPF():
 
 if __name__=="__main__":
     test_SRDataIter()
-#    test_DataIterEPF()
+    #test_DataIterEPF()
               

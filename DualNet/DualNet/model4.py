@@ -31,6 +31,7 @@ def DetailNet(input_data):
      return net
  
 def DualCNN(x):
+    W_init = tf.truncated_normal_initializer(stddev=5e-2)
     endpoints={}
     net=tl.layers.InputLayer(x,name="img_in")
     netD=DetailNet(net)
@@ -39,7 +40,7 @@ def DualCNN(x):
     net=tl.layers.ElementwiseLayer([netD, netS], tf.add,name="sumDS")
     endpoints["compS"]=netS
     endpoints["compD"]=netD
-    return net, endpoints
+    return net,netS,netD,endpoints
     
     
 if __name__=="__main__":

@@ -2,7 +2,7 @@ import os
 import numpy as npy
 import tensorflow as tf
 import tensorlayer as tl
-from model import DualCNN
+from Bifocus_model import DualCNN
 from evaluate_metric import sr_metric
 from data_proc import DataIterSR
 
@@ -26,6 +26,7 @@ scale_factor=4
 num_epoch=100000
 batch_size=10
 train_img_size=41
+crop_size=int(train_img_size/3)
 lr0=0.0001
 print_freq=200
 save_freq=5000
@@ -33,10 +34,11 @@ check_point_dir="checkpoint"
 if not os.path.exists(check_point_dir):
     os.makedirs(check_point_dir)
 
-x=tf.placeholder(tf.float32,shape=[None,None,None,3],name="x")
-y=tf.placeholder(tf.float32,shape=[None,None,None,3],name="y")
+x=tf.placeholder(tf.float32,shape=[None,train_img_size,train_img_size,3],name="x")
+crop=tf.placeholder(tf.float32,shape=[None,crop_size,crop_size,3],name="crop")
+y=tf.placeholder(tf.float32,shape=[None,train_img_size,train_img_size,3],name="y")
 
-net,endpoints=DualCNN(x)
+net,endpoints=DualCNN(x,crop)
 
 y_out=net.outputs
 
@@ -62,7 +64,7 @@ with tf.Session() as sess:
     for epoch in range(num_epoch):
         img_hr, img_lr, img_rs, img_crop=data_iter.creat()
         train_loss,y_pred,_=sess.run([cost,y_out,train_op],
-                                     feed_dict={x:img_rs, y:img_hr})
+                                     feed_dict={x:img_rs,crop:img_crop ,y:img_hr})
         mse, psnr=sr_metric(img_hr,y_pred)
         mean_loss+=train_loss
         mean_mse+=mse
