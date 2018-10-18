@@ -3,8 +3,10 @@ import numpy as npy
 import tensorflow as tf
 import tensorlayer as tl
 from Bifocus_model import DualCNN
-from evaluate_metric import sr_metric
+from evaluate_metric import sr_metric,merge
 from data_proc import DataIterSR
+from matplotlib import pyplot as plt
+
 
 tl.layers.clear_layers_name()
 tf.reset_default_graph()
@@ -25,7 +27,7 @@ img_list=[f for f in os.listdir(datadir) if f.find(".png")!=-1]
 scale_factor=4
 num_epoch=100000
 batch_size=10
-train_img_size=41
+train_img_size=42
 crop_size=int(train_img_size/3)
 lr0=0.0001
 print_freq=200

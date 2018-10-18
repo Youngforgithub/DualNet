@@ -154,21 +154,21 @@ class DataIterSR(object):
         img_lr=img_lr.astype(npy.float32)
 
         pixel_size=crop_size
+        min_size=int(crop_size/3)
+        max_size=int(crop_size/3)*2
         crop_size=int(crop_size/3)
-        min_size=int(crop_size/2)
-        max_size=int(crop_size*3/2)
-        
 
-        img_hr=npy.zeros((self._crop_num,pixel_size,pixel_size,3))
-        img_lw=npy.zeros((self._crop_num,pixel_size,pixel_size,3))
-        img_crop_lr=npy.zeros((self._crop_num,pixel_size,pixel_size,3))
-        img_crop=npy.zeros((self._crop_num, pixel_size, pixel_size,3))
-        img_rs=npy.zeros((self._crop_num, pixel_size, pixel_size, 3))
-        sub_imgCrop=npy.zeros((self._crop_num, crop_size, crop_size, 3))
+        img_hr=npy.zeros((1,pixel_size,pixel_size,3))
+        img_lw=npy.zeros((1,pixel_size,pixel_size,3))
+        img_crop_lr=npy.zeros((1,pixel_size,pixel_size,3))
+        img_crop=npy.zeros((1, pixel_size, pixel_size,3))
+        img_rs=npy.zeros((1, pixel_size, pixel_size, 3))
+        sub_imgCrop=npy.zeros((1, crop_size, crop_size, 3))
         for i in range(1):
             nrow_start=npy.random.randint(0,nrow-pixel_size)
             ncol_start=npy.random.randint(0,ncol-pixel_size)
             img_hr[i,:,:,:]=img[nrow_start:nrow_start+pixel_size,ncol_start:ncol_start+pixel_size,:]/255
+
             img_crop[i,min_size:max_size,
 					   min_size:max_size,:]=img[nrow_start+min_size:nrow_start+max_size,
 												ncol_start+min_size:ncol_start+max_size,:]
@@ -187,6 +187,7 @@ class DataIterSR(object):
 
         return (img_hr.astype(npy.float32),img_lw.astype(npy.float32),
 				img_rs.astype(npy.float32),(sub_imgCrop/255).astype(npy.float32))
+
 
 
 class DataIterEPF(object):
@@ -259,19 +260,19 @@ def test_SRDataIter():
     try:
         img_hr, img_lr, img_rs,img_crop=data_iter.creat()
         plt.subplot(2,2,1)
-        plt.imshow(img_hr[:,:,:])
+        plt.imshow(img_hr[0,:,:,:])
         plt.title('origin image')
         plt.axis('off')
         plt.subplot(2,2,2)
-        plt.imshow(img_lr[:,:,:])
+        plt.imshow(img_lr[0,:,:,:])
         plt.title('low level image')
         plt.axis('off')
         plt.subplot(2,2,3)
-        plt.imshow(img_rs[:,:,:])
+        plt.imshow(img_rs[0,:,:,:])
         plt.title('reconstruct image 0')
         plt.axis('off')
         plt.subplot(2,2,4)
-        plt.imshow(img_crop[:,:,:])
+        plt.imshow(img_crop[0,:,:,:])
         plt.title('crop image 0')
         plt.axis('off')
         plt.show()

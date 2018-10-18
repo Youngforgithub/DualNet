@@ -37,6 +37,9 @@
     <Compile Include="test.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="test_Bifocus.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="test_model.py" />
     <Compile Include="train_Bifocus.py">
       <SubType>Code</SubType>
@@ -52,6 +55,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="checkpoint\" />
+    <Folder Include="checkpoint\Bifocus_Correct\" />
     <Folder Include="checkpoint\charbonnier\" />
     <Folder Include="checkpoint\model3\" />
     <Folder Include="checkpoint\org\" />
@@ -60,6 +64,7 @@
     <Folder Include="data\BSDS200\" />
     <Folder Include="data\BSDS200_L0\" />
     <Folder Include="data\BSDS200_RTV\" />
+    <Folder Include="data\Bifocus\" />
     <Folder Include="data\T91\" />
     <Folder Include="data\test\" />
     <Folder Include="data\test\derain\" />
@@ -73,6 +78,22 @@
     <Folder Include="test_result\sr\rtv\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="checkpoint\Bifocus_Correct\checkpoint" />
+    <Content Include="checkpoint\Bifocus_Correct\model_35000.ckpt.data-00000-of-00001" />
+    <Content Include="checkpoint\Bifocus_Correct\model_35000.ckpt.index" />
+    <Content Include="checkpoint\Bifocus_Correct\model_35000.ckpt.meta" />
+    <Content Include="checkpoint\Bifocus_Correct\model_40000.ckpt.data-00000-of-00001" />
+    <Content Include="checkpoint\Bifocus_Correct\model_40000.ckpt.index" />
+    <Content Include="checkpoint\Bifocus_Correct\model_40000.ckpt.meta" />
+    <Content Include="checkpoint\Bifocus_Correct\model_45000.ckpt.data-00000-of-00001" />
+    <Content Include="checkpoint\Bifocus_Correct\model_45000.ckpt.index" />
+    <Content Include="checkpoint\Bifocus_Correct\model_45000.ckpt.meta" />
+    <Content Include="checkpoint\Bifocus_Correct\model_50000.ckpt.data-00000-of-00001" />
+    <Content Include="checkpoint\Bifocus_Correct\model_50000.ckpt.index" />
+    <Content Include="checkpoint\Bifocus_Correct\model_50000.ckpt.meta" />
+    <Content Include="checkpoint\Bifocus_Correct\model_55000.ckpt.data-00000-of-00001" />
+    <Content Include="checkpoint\Bifocus_Correct\model_55000.ckpt.index" />
+    <Content Include="checkpoint\Bifocus_Correct\model_55000.ckpt.meta" />
     <Content Include="checkpoint\charbonnier\checkpoint" />
     <Content Include="checkpoint\charbonnier\model_75000.ckpt.data-00000-of-00001" />
     <Content Include="checkpoint\charbonnier\model_75000.ckpt.index" />
@@ -843,6 +864,7 @@
     <Content Include="data\test\epf\145086.jpg" />
     <Content Include="data\test\epf\384022.jpg" />
     <Content Include="data\test\epf\388018.jpg" />
+    <Content Include="data\Bifocus\monarch.png" />
     <Content Include="data\test\sr\monarch.png" />
     <Content Include="data\test\sr\zebra.png" />
     <Content Include="data\tsmooth.m" />
