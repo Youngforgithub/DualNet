@@ -2,7 +2,7 @@ import os
 import numpy as npy
 import tensorflow as tf
 import tensorlayer as tl
-from Bifocus_model import DualCNN
+from Bifocus_model2 import DualCNN
 from evaluate_metric import sr_metric,merge
 from data_proc import DataIterSR
 from matplotlib import pyplot as plt
@@ -21,7 +21,7 @@ def compute_charbonnier_loss(tensor1, tensor2, is_mean=True):
 
     return loss
 
-datadir=r"data\T91"
+datadir=r"./data/DIV2K_valid_HR"
 img_list=[f for f in os.listdir(datadir) if f.find(".png")!=-1]
 
 scale_factor=4
@@ -32,7 +32,7 @@ crop_size=int(train_img_size/3)
 lr0=0.0001
 print_freq=200
 save_freq=5000
-check_point_dir="checkpoint"
+check_point_dir="./checkpoint/Bifocus_Correct3"
 if not os.path.exists(check_point_dir):
     os.makedirs(check_point_dir)
 
@@ -40,7 +40,7 @@ x=tf.placeholder(tf.float32,shape=[None,train_img_size,train_img_size,3],name="x
 crop=tf.placeholder(tf.float32,shape=[None,crop_size,crop_size,3],name="crop")
 y=tf.placeholder(tf.float32,shape=[None,train_img_size,train_img_size,3],name="y")
 
-net,endpoints=DualCNN(x,crop)
+net,netD,netS,endpoints=DualCNN(x,crop)
 
 y_out=net.outputs
 

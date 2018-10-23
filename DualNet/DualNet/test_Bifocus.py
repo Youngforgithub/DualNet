@@ -5,7 +5,7 @@ import cv2
 import tensorflow as tf
 import tensorlayer as tl
 import time
-from Bifocus_model import DualCNN
+from Bifocus_model2 import DualCNN
 from data_proc import DataIterSR
 from evaluate_metric import sr_metric,merge
 from matplotlib import pyplot as plt
@@ -15,15 +15,17 @@ def test_SR_DataSet():
     datadir=r"./data/Bifocus"
     img_list=[f for f in os.listdir(datadir) if f.find(".png")!=-1]
 
-    check_point_dir=r"./checkpoint/Bifocus_Correct"
-    res_dir="test_result\moedel3\sr\T91"
+    check_point_dir=r"./checkpoint/Bifocus_Correct3"
+    res_dir="./test_result/Bifocus"
     if not os.path.exists(res_dir):
         os.makedirs(res_dir)
 
-    x=tf.placeholder(tf.float32,shape=[None,768,512,3],name="x")
-    crop=tf.placeholder(tf.float32,shape=[None,256,170,3],name="crop")
-    net,endpoints=DualCNN(x,crop)
-    y_out=merge(net.outputs,crop)
+    x=tf.placeholder(tf.float32,shape=[None,None,None,3],name="x")
+    crop=tf.placeholder(tf.float32,shape=[None,None,None,3],name="crop")
+    net,netD,netS,endpoints=DualCNN(x,crop)
+    netD=netD.outputs
+    netS=netS.outputs
+    y_out=net.outputs
 
     batch_size=10
     test_img_size=41
@@ -43,24 +45,25 @@ def test_SR_DataSet():
             [nrow, ncol, nchl]=img.shape
             crop_img=npy.zeros((nrow,ncol,nchl))
             crop_imglr=npy.zeros((nrow,ncol,nchl))
-            crop_sizeX=int(nrow/6)
-            crop_sizeY=int(ncol/6)
-            middleX=int(nrow/2)
-            middleY=int(ncol/2)
-            crop_img[middleX-crop_sizeX:middleX+crop_sizeX,middleY-crop_sizeY:middleY+crop_sizeY,:]=img[middleX-crop_sizeX:middleX+crop_sizeX,middleY-crop_sizeY:middleY+crop_sizeY,:]
-            crop=img[middleX-crop_sizeX:middleX+crop_sizeX,middleY-crop_sizeY:middleY+crop_sizeY,:]
+            minSizeX=int(nrow/3)
+            minSizeY=int(ncol/3)
+            maxSizeX=2*minSizeX
+            maxSizeY=2*minSizeY
+            crop_img[minSizeX:maxSizeX,minSizeY:maxSizeY,:]=img[minSizeX:maxSizeX,minSizeY:maxSizeY,:]
+            crop_input=img[minSizeX:maxSizeX,minSizeY:maxSizeY,:]
+            crop_input=crop_input[npy.newaxis,:,:,:].astype(npy.float32)/255
             #cv2.imwrite(os.path.join(res_dir, f+"_imgorg.png"),img)
             #cv2.imwrite(os.path.join(res_dir, f+"_imgorg_pt.png"),crop_img)
             img_blur=cv2.GaussianBlur(img,(3,3),1.2)
             img_ds=cv2.resize(img_blur, (ncol//scale_factor, nrow//scale_factor),
                               interpolation=cv2.INTER_CUBIC)
             img_lr=cv2.resize(img_ds, (ncol, nrow), interpolation=cv2.INTER_CUBIC)
-            crop_imglr=g[middleX-crop_sizeX:middleX+crop_sizeX,middleY-crop_sizeY:middleY+crop_sizeY,:]=img_lr[middleX-crop_sizeX:middleX+crop_sizeX,middleY-crop_sizeY:middleY+crop_sizeY,:]
+            crop_imglr[minSizeX:maxSizeX,minSizeY:maxSizeY,:]=img_lr[minSizeX:maxSizeX,minSizeY:maxSizeY,:]
             img_lr=img_lr-crop_imglr+crop_img
-            img_in=(img_lr.astype(npy.float32))/255.0
+            img_in=(img_lr.astype(npy.float32))/255
             img_in=img_in[npy.newaxis,:,:,:].astype(npy.float32)
             start = time.time()
-            y_pred=sess.run(y_out, feed_dict={x:img_in,crop:crop})
+            y_pred,net_D,net_S=sess.run([y_out,netD,netS], feed_dict={x:img_in,crop:crop_input})
             end = time.time()
             img=(img.astype(npy.float32))/255.0
             img=img[npy.newaxis,:,:,:].astype(npy.float32)
@@ -72,7 +75,21 @@ def test_SR_DataSet():
             print("pic_loical,time:{}, mse:{}, psnr:{}".format(end-start,mse, psnr))
             img_out=npy.maximum(0, npy.minimum(1,y_pred[0,:,:,:]))*255
             img_out=img_out.astype(npy.uint8)
+            img = cv2.cvtColor(img[0,:,:,:], cv2.COLOR_BGR2RGB)
+            y_pred=y_pred[0,:,:,:]/npy.max(y_pred[0,:,:,:])
+            y_pred= cv2.cvtColor(y_pred, cv2.COLOR_BGR2RGB)
+            net_D=net_D[0,:,:,:]/npy.max(net_D[0,:,:,:])
+            net_D= cv2.cvtColor(net_D, cv2.COLOR_BGR2RGB)
+            net_S=net_S[0,:,:,:]/npy.max(net_S[0,:,:,:])
+            net_S= cv2.cvtColor(net_S, cv2.COLOR_BGR2RGB)
+            plt.subplot(2,2,1)
+            plt.imshow(img)
+            plt.subplot(2,2,2)
             plt.imshow(y_pred)
+            plt.subplot(2,2,3)
+            plt.imshow(net_D)
+            plt.subplot(2,2,4)
+            plt.imshow(net_S)
             plt.show()
             #cv2.imwrite(os.path.join(res_dir, f+"_imglr.png"),img_lr)
             #cv2.imwrite(os.path.join(res_dir, f+"_imgsr.png"),img_out)

@@ -28,10 +28,12 @@ def DetailNet(input_data):
      out=tl.layers.Conv2d(net,n_filter=32,filter_size=(1,1), strides=(1,1),
                         act=tf.nn.relu,W_init=W_init,name="netD_convout1")
      out=tl.layers.Conv2d(out,n_filter=3,filter_size=(3,3), strides=(1,1),
-                        act=tf.nn.relu,W_init=W_init,name="netD_convout")
+                        act=tf.nn.relu,W_init=W_init,name="netD_convout2")
      net=tl.layers.Conv2d(net,n_filter=3,filter_size=(3,3), strides=(1,1),
-                        act=tf.nn.relu,W_init=W_init,name="netD_convout")
+                        act=tf.nn.relu,W_init=W_init,name="netD_convout3")
      net=tl.layers.ConcatLayer([net, out], concat_dim=3,name="netD_concat1")
+     net=tl.layers.Conv2d(net,n_filter=3,filter_size=(3,3), strides=(1,1),
+                        act=tf.nn.relu,W_init=W_init,name="netD_convout4")
      return net
  
 def DualCNN(x,crop):
@@ -44,16 +46,12 @@ def DualCNN(x,crop):
     netS=StructNet(netX)
 
     net=tl.layers.ConcatLayer([netD, netS], concat_dim=3,name="net_concat")
-    net=tl.layers.Conv2d(net,n_filter=64,filter_size=(3,3), strides=(1,1),
-                        act=tf.nn.relu,W_init=W_init,name="net_convout1")
     net=tl.layers.DeConv2d(net,n_filter=64,filter_size=(3,3),strides=(3,3),name="net_deconvout")
-    net=tl.layers.Conv2d(net,n_filter=32,filter_size=(3,3), strides=(1,1),
-                        act=tf.nn.relu,W_init=W_init,name="net_convout1")
     net=tl.layers.Conv2d(net,n_filter=3,filter_size=(3,3), strides=(1,1),
                         act=tf.nn.relu,W_init=W_init,name="net_convout1")
     endpoints["compS"]=netS
     endpoints["compD"]=netD
-    return net, endpoints
+    return net,netD,netS,endpoints
     
     
 if __name__=="__main__":
