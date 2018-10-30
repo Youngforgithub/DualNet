@@ -1,3 +1,5 @@
+##based on checkpoint/correct3
+
 import os
 import time
 import numpy as npy
@@ -15,7 +17,7 @@ def test_SR_DataSet():
     datadir=r"./data/Bifocus"
     img_list=[f for f in os.listdir(datadir) if f.find(".png")!=-1]
 
-    check_point_dir=r"./checkpoint/Bifocus_Correct3"
+    check_point_dir=r"./checkpoint/Bifocus_Correct5"
     res_dir="./test_result/Bifocus"
     if not os.path.exists(res_dir):
         os.makedirs(res_dir)
@@ -35,7 +37,7 @@ def test_SR_DataSet():
     data_iter=DataIterSR(datadir, img_list, batch_size, test_img_size, scale_factor, True)
 
     with tf.Session() as sess:
-        saver.restore(sess,os.path.join(check_point_dir,"model_{}.ckpt".format(95000)))
+        saver.restore(sess,os.path.join(check_point_dir,"model_{}.ckpt".format(295000)))
         mean_time=0
         mean_mse=0
         mean_psnr=0
