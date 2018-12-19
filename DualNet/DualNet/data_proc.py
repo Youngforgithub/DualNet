@@ -234,12 +234,48 @@ class DataIterSR(object):
             #img_crop=img[nrow_start:nrow_start+crop_size,
             #                ncol_start:ncol_start+crop_size,:]
             img_crop[i,:,:,:]=img_crop[i,:,:,:]/255  
+            sub_imgCrop=sub_imgCrop/255
             img_lw[i,:,:,:]=img_lr[nrow_start:nrow_start+pixel_size,ncol_start:ncol_start+pixel_size,:]
             img_out[i,:,:,:]=img_lw[i,:,:,:]-img_crop_lr[i,:,:,:]
 
 
         return (img_hr.astype(npy.float32),img_lw.astype(npy.float32),
 				img_out.astype(npy.float32),img_crop.astype(npy.float32))
+  
+    def creat3(self):
+        if self._is_shuffle and npy.mod(self._cur_idx,self._num_img)==0:
+            self._cur_idx=0
+            random.shuffle(self._img_list)  
+        crop_size=self._crop_size
+        img_path=os.path.join(self._datadir,self._img_list[self._cur_idx])
+        img=cv2.imread(img_path, cv2.IMREAD_COLOR)
+        img=cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
+        [nrow, ncol, nchl]=img.shape
+        img_ds=cv2.resize(img, (ncol//self._scale_fator, nrow//self._scale_fator),
+                          interpolation=cv2.INTER_CUBIC)
+     
+        img_lr=cv2.resize(img_ds, (ncol, nrow), interpolation=cv2.INTER_CUBIC)
+        img_lr=img_lr/255
+        img_lr=img_lr.astype(npy.float32)
+
+        pos_crop=int((crop_size+6-1)/6)
+
+        img_hr=npy.zeros((1,crop_size,crop_size,3))
+        img_lw=npy.zeros((1,crop_size,crop_size,3))
+        #img_crop_lr=npy.zeros((1,pixel_size,pixel_size,3))
+        img_crop=npy.zeros((1, 2*pos_crop,2*pos_crop,3))
+        #img_rs=npy.zeros((1, pixel_size, pixel_size, 3))
+        #img_out=npy.zeros((1, pixel_size, pixel_size, 3))
+        #sub_imgCrop=npy.zeros((1, crop_size, crop_size, 3))
+        for i in range(1):
+            nrow_start=npy.random.randint(0,nrow-crop_size)
+            ncol_start=npy.random.randint(0,ncol-crop_size)
+            img_hr[i,:,:,:]=img[nrow_start:nrow_start+crop_size,ncol_start:ncol_start+crop_size,:]/255
+            img_lw[i,:,:,:]=img_lr[nrow_start:nrow_start+crop_size,ncol_start:ncol_start+crop_size,:]
+            img_crop[i,:,:,:]=img[nrow_start+pos_crop:nrow_start+3*pos_crop,ncol_start+pos_crop:ncol_start+3*pos_crop,:]/255
+
+
+        return (img_lw.astype(npy.float32),img_crop.astype(npy.float32),img_hr.astype(npy.float32))
 
 
 class DataIterEPF(object):

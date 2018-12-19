@@ -4,7 +4,7 @@ import tensorlayer as tl
 
 def StructNet(input_data):
     W_init = tf.truncated_normal_initializer(stddev=5e-2)
-    net=tl.layers.Conv2d(input_data,n_filter=64,filter_size=(9,9), strides=(1,1),
+    net=tl.layers.Conv2d(input_data,n_filter=64,filter_size=(9,9), strides=(3,3),
                         act=tf.nn.relu,W_init=W_init,name="netS_conv0")
     net=tl.layers.Conv2d(net,n_filter=32,filter_size=(1,1),strides=(1,1),
                          act=tf.nn.relu,W_init=W_init,name="netS_conv1")
@@ -37,7 +37,7 @@ def DualCNN(x):
     netD=DetailNet(net)
     netS=StructNet(net)
 
-    net=tl.layers.ElementwiseLayer([netD, netS], tf.add,name="sumDS")
+    #net=tl.layers.ElementwiseLayer([netD, netS], tf.add,name="sumDS")
     endpoints["compS"]=netS
     endpoints["compD"]=netD
     return net,netS,netD,endpoints
